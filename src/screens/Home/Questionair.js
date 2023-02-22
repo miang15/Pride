@@ -455,6 +455,7 @@ const styles = StyleSheet.create({
     fontSize: responsiveSize(11),
     fontFamily: theme.interbold,
     marginHorizontal: responsiveSize(15),
+    fontWeight: 'bold',
   },
   answer: {
     color: theme.white,

@@ -7,6 +7,7 @@ import {
   ImageBackground,
   ScrollView,
   Modal,
+  Linking,
 } from 'react-native';
 import React, {useState} from 'react';
 import {Images} from '../../constants/Images';
@@ -219,8 +220,20 @@ const Profile = ({navigation}) => {
           title={'Prediction History'}
           img={Images.history}
         />
-        <ListItem title={'Privacy & Policy'} img={Images.Documents} />
-        <ListItem title={'Terms & Conditions'} img={Images.lock} />
+        <ListItem
+          onPress={() =>
+            Linking.openURL(`https://www.getpride.tech/privacy.html`)
+          }
+          title={'Privacy & Policy'}
+          img={Images.Documents}
+        />
+        <ListItem
+          onPress={() =>
+            Linking.openURL(`https://www.getpride.tech/privacy.html`)
+          }
+          title={'Terms & Conditions'}
+          img={Images.lock}
+        />
         <ListItem
           title={'Contact Us'}
           customStyle={{marginBottom: responsiveSize(20)}}
@@ -247,6 +260,7 @@ const Profile = ({navigation}) => {
               customStyle={{width: '100%'}}
               keyboardType={'number-pad'}
             />
+            <Text style={styles.payment}>{'Payment No: 9945735175'}</Text>
             {error?.type == 'amount' ? (
               <Text style={styles.errorMsg}>{error?.msg}</Text>
             ) : null}
@@ -339,12 +353,14 @@ const styles = StyleSheet.create({
   hey: {
     color: theme.white,
     fontFamily: theme.interbold,
-    fontSize: responsiveSize(14),
+    fontSize: responsiveSize(15),
+    fontWeight: 'bold',
   },
   name: {
     color: theme.white,
     fontFamily: theme.interbold,
-    fontSize: responsiveSize(14),
+    fontSize: responsiveSize(15),
+    fontWeight: 'bold',
   },
   img: {
     width: responsiveSize(55),
@@ -399,6 +415,10 @@ const styles = StyleSheet.create({
     marginHorizontal: responsiveSize(5),
     textAlign: 'center',
     borderRadius: 5,
+  },
+  payment: {
+    color: theme.white,
+    fontSize: responsiveSize(11),
   },
   redeem: {
     backgroundColor: theme.primary,

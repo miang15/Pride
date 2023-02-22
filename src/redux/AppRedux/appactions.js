@@ -32,6 +32,9 @@ export const showPushNotification = (message, url) => {
   PushNotification.localNotification({
     title: 'Pride',
     message: message,
+    data: {
+      link: url,
+    },
     channelId: 'channel-id',
   });
 };

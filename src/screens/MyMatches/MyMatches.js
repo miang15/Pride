@@ -123,6 +123,7 @@ const styles = StyleSheet.create({
     fontSize: responsiveSize(13),
     marginHorizontal: responsiveSize(15),
     marginVertical: responsiveSize(8),
+    fontWeight: 'bold',
   },
   nodata: {
     color: theme.white,

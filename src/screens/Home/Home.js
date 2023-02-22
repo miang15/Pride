@@ -365,6 +365,7 @@ const styles = StyleSheet.create({
     fontSize: responsiveSize(12),
     margin: responsiveSize(15),
     fontFamily: theme.interbold,
+    fontWeight: 'bold',
   },
   textrow: {
     flexDirection: 'row',
@@ -378,6 +379,7 @@ const styles = StyleSheet.create({
     fontFamily: theme.interbold,
     marginHorizontal: responsiveSize(15),
     marginTop: responsiveSize(15),
+    fontWeight: 'bold',
   },
   seeall: {
     backgroundColor: theme.yellow,

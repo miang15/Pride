@@ -109,6 +109,7 @@ const styles = StyleSheet.create({
     color: theme.white,
     fontFamily: theme.interbold,
     fontSize: responsiveSize(13),
+    fontWeight: 'bold',
   },
   clear: {
     color: theme.white,
