@@ -260,7 +260,9 @@ const Profile = ({navigation}) => {
               customStyle={{width: '100%'}}
               keyboardType={'number-pad'}
             />
-            <Text style={styles.payment}>{'Payment No: 9945735175'}</Text>
+            {select == 'ADD' ? (
+              <Text style={styles.payment}>{'Payment No: 9945735175'}</Text>
+            ) : null}
             {error?.type == 'amount' ? (
               <Text style={styles.errorMsg}>{error?.msg}</Text>
             ) : null}

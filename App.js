@@ -13,54 +13,13 @@ import {
 } from './src/redux/AppRedux/appactions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import io from 'socket.io-client';
+import {navigationRef} from './src/navigation/RootNavigator';
 
 const App = () => {
   const [first, setFirst] = useState(false);
   LogBox.ignoreLogs(['VirtualizedLists should never be nested inside']);
-  // useEffect(() => {
-  //   async () => {
-  //     const socket = await initSocket();
-
-  //     PushNotification.createChannel(
-  //       {
-  //         channelId: 'channel-id', // (required)
-  //         channelName: 'Pride', // (required)
-  //         channelDescription: 'Pride Notification', // (optional) default: undefined.
-  //         playSound: true, // (optional) default: true
-  //         soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
-  //         // (optional) default: Importance.HIGH. Int value of the Android notification importance
-  //         vibrate: true, // (optional) default: true. Creates the default vibration pattern if true.
-  //       },
-  //       created => console.log(`createChannel bottom'${created}'`), // (optional) callback returns whether the channel was created, false means it already existed.
-  //     );
-  //     PushNotification.configure({
-  //       onNotification: function (notification) {
-  //         console.log('NOTIFICATION:', notification?.data);
-  //       },
-  //       permissions: {
-  //         alert: true,
-  //         badge: true,
-  //         sound: true,
-  //       },
-
-  //       popInitialNotification: true,
-  //       requestPermissions: Platform.OS == 'ios',
-  //     });
-  //     socket.on('notification', (Message, url) => {
-  //       console.log('here notifi: ', Message);
-  //       console.log('url notifi: ', url);
-  //       showPushNotification(Message, url);
-  //       store.dispatch({
-  //         type: APP_ACTION_TYPES.SET_NOTIFICATION,
-  //         payload: {Message: Message, url: url},
-  //       });
-  //     });
-  //   };
-  // }, []);
 
   useEffect(() => {
-    // Set up Socket.IO client with query token
-    console.log('effect');
     AsyncStorage.getItem('loggedIn')
       .then(token => {
         console.log('then');
@@ -84,8 +43,7 @@ const App = () => {
         );
         PushNotification.configure({
           onNotification: function (notification) {
-            console.log('NOTIFICATION:', notification?.data);
-            Linking.openURL(notification?.data?.link);
+            navigationRef.current?.navigate('BottomTab', {screen: 'Home'});
           },
           permissions: {
             alert: true,
@@ -99,8 +57,6 @@ const App = () => {
         if (!first) {
           setFirst(true);
           socket.on('notification', (Message, url) => {
-            console.log('here notifi: ', Message);
-            console.log('url notifi: ', url);
             showPushNotification(Message, url);
             store.dispatch({
               type: APP_ACTION_TYPES.SET_NOTIFICATION,
@@ -116,7 +72,7 @@ const App = () => {
         console.log('Error retrieving token from AsyncStorage:', error);
       });
   }, []);
-  const NotifyListener = async () => {};
+
   return (
     <Provider store={store}>
       <Index />

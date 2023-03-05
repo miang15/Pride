@@ -11,6 +11,7 @@ import {
   Modal,
   Alert,
   Platform,
+  Linking,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import Header from '../../components/Header';
@@ -201,6 +202,18 @@ const Questionair = ({navigation}) => {
       }
     }
   };
+
+  const openBanner = async val => {
+    try {
+      await Linking.openURL(val); // This will throw a LinkingException error
+    } catch (error) {
+      if (error.message.includes('No handler for URL')) {
+        Alert.alert('Error', 'Invalid URL');
+      } else {
+        Alert.alert('Error', 'Failed to open URL');
+      }
+    }
+  };
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={theme.black} barStyle={'light-content'} />
@@ -316,13 +329,27 @@ const Questionair = ({navigation}) => {
         {error?.type == 'gift' ? (
           <Text style={styles.errorMsg}>{error?.msg}</Text>
         ) : null}
-        <TouchableOpacity style={styles.bannerView}>
-          <Image
-            source={Images.bannerads}
-            resizeMode="cover"
-            style={styles.img}
-          />
-        </TouchableOpacity>
+        {banner?.length ? (
+          <Swiper
+            loop={false}
+            height={'auto'}
+            dotColor={theme.white}
+            activeDotColor={theme.text.red}
+            pagingEnabled>
+            {banner?.map(item => (
+              <TouchableOpacity
+                onPress={() => openBanner(item?.link)}
+                style={styles.bannerView}>
+                <Image
+                  source={{uri: item?.url}}
+                  resizeMode="cover"
+                  style={styles.img}
+                />
+              </TouchableOpacity>
+            ))}
+          </Swiper>
+        ) : null}
+
         <Modal
           animationType="fade"
           transparent={true}
@@ -335,29 +362,6 @@ const Questionair = ({navigation}) => {
               <Text numberOfLines={1} style={styles.modalText}>
                 BID
               </Text>
-              {/* <Dropdown
-                style={styles.dropdown}
-                placeholderStyle={styles.placeholderStyle}
-                selectedTextStyle={styles.selectedTextStyle}
-                itemTextStyle={styles.inputSearchStyle}
-                iconColor={theme.white}
-                activeColor={theme.yellow}
-                containerStyle={{
-                  borderRadius: 8,
-                  backgroundColor: theme.black,
-                  overflow: 'hidden',
-                  marginTop: responsiveSize(3),
-                }}
-                data={amountList}
-                maxHeight={300}
-                labelField="label"
-                valueField="value"
-                placeholder={'BID AMOUNT'}
-                value={value}
-                onChange={item => {
-                  setValue(item.value);
-                }}
-              /> */}
               <CustomInput
                 editable={false}
                 value={value}
@@ -379,22 +383,6 @@ const Questionair = ({navigation}) => {
                   {value || 0}
                 </Text>
               </View>
-              {/* <View style={styles.row}>
-                <Text numberOfLines={1} style={styles.amount}>
-                  PLATFORM CHARGES
-                </Text>
-                <Text numberOfLines={1} style={styles.value}>
-                  15
-                </Text>
-              </View>
-              <View style={styles.row}>
-                <Text numberOfLines={1} style={styles.amount}>
-                  POOL AMOUNT
-                </Text>
-                <Text numberOfLines={1} style={styles.value}>
-                  85
-                </Text>
-              </View> */}
               <CustomButton
                 onPress={handlePlaceBid}
                 labelStyle={{color: theme.black}}

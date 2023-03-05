@@ -5,41 +5,47 @@ import {
   TouchableOpacity,
   Text,
   View,
+  Linking,
+  Alert,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import Header from '../../components/Header';
 import {responsiveSize, theme} from '../../utils/theme';
 import {Images} from '../../constants/Images';
 import {useSelector} from 'react-redux';
+import {AppLoader} from '../../components/AppLoader/AppLoader';
+import http from '../../api/http';
+import Swiper from 'react-native-swiper';
 
 const MyMatches = ({navigation}) => {
   const myFavorite = useSelector(state => state.FavoriteReducer.favorite);
-  const [data2, setData2] = useState([
-    {
-      id: 1,
-      img: Images.thumbnail1,
-    },
-    {
-      id: 2,
-      img: Images.thumbnail3,
-    },
-    {
-      id: 3,
-      img: Images.thumbnail4,
-    },
-    {
-      id: 4,
-      img: Images.thumbnail5,
-    },
-    {
-      id: 5,
-      img: Images.thumbnail2,
-    },
-    {
-      id: 6,
-      img: Images.thumbnail1,
-    },
-  ]);
+  const [banner, setBanner] = useState([]);
+  const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    getThirdBanner();
+  }, []);
+
+  const getThirdBanner = async () => {
+    setLoading(true);
+    const bannerRes = await http.get('user/getbannerthird');
+    console.log('bannner: third', bannerRes?.data);
+    if (bannerRes?.data?.success) {
+      setBanner(bannerRes?.data?.banner);
+    }
+    setLoading(false);
+  };
+
+  const openBanner = async val => {
+    try {
+      await Linking.openURL(val); // This will throw a LinkingException error
+    } catch (error) {
+      if (error.message.includes('No handler for URL')) {
+        Alert.alert('Error', 'Invalid URL');
+      } else {
+        Alert.alert('Error', 'Failed to open URL');
+      }
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -49,13 +55,37 @@ const MyMatches = ({navigation}) => {
         bell={true}
         balance={2000}
       />
-      <TouchableOpacity style={styles.bannerView}>
-        <Image
-          source={Images.bannerads}
-          resizeMode="cover"
-          style={styles.img}
-        />
-      </TouchableOpacity>
+      <AppLoader loading={loading} />
+      <View
+        style={{
+          height: responsiveSize(110),
+          overflow: 'hidden',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
+        {banner?.length ? (
+          <Swiper
+            loop={false}
+            collapsable={true}
+            height={'auto'}
+            dotColor={theme.white}
+            activeDotColor={theme.text.red}
+            pagingEnabled>
+            {banner?.map(item => (
+              <TouchableOpacity
+                key={item}
+                onPress={() => openBanner(item?.link)}
+                style={styles.bannerView}>
+                <Image
+                  source={{uri: item?.url}}
+                  resizeMode="cover"
+                  style={styles.img}
+                />
+              </TouchableOpacity>
+            ))}
+          </Swiper>
+        ) : null}
+      </View>
       <Text style={styles.heading}>MY MATCHES</Text>
       {myFavorite?.length ? (
         <FlatList
@@ -105,9 +135,8 @@ const styles = StyleSheet.create({
   bannerView: {
     alignSelf: 'center',
     width: responsiveSize(320),
-    height: responsiveSize(100),
+    height: responsiveSize(110),
     borderRadius: 10,
-    marginVertical: responsiveSize(15),
     overflow: 'hidden',
     borderWidth: 0.3,
     borderColor: theme.text.gray,

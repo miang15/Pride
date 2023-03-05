@@ -18,13 +18,17 @@ import {AppLoader} from '../../components/AppLoader/AppLoader';
 import http from '../../api/http';
 import {setLocalStorage} from '../../utils/actions';
 import Header from '../../components/Header';
+import {userLoggedAction} from '../../redux/Auth/authactions';
+import {useDispatch} from 'react-redux';
 
 const Login = ({navigation}) => {
   const [phone, setPhone] = useState('');
   const phoneInputRef = useRef();
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [value, setValue] = useState('');
   const [otp, setOtp] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState({type: '', msg: ''});
 
   const handleGetOTP = async () => {
@@ -33,20 +37,26 @@ const Login = ({navigation}) => {
         type: 'phone',
         msg: 'Phone Number is Required.',
       });
+    } else if (!password) {
+      setError({
+        type: 'password',
+        msg: 'Password is Required',
+      });
     } else {
       setLoading(true);
       var num = phone.substring(1);
+      console.log('passowrd', password);
       const data = {
         mobile: num,
+        password: password,
       };
-      const otpRes = await http.post('user/otp', data);
-
-      if (otpRes?.data) {
-        setLocalStorage('token', otpRes?.data?.token);
-        navigation.replace('VerifyOTP', {
-          userData: data,
-          endPoint: 'user/login',
-        });
+      const loginRes = await http.post('user/login', data);
+      console.log('loginRes', loginRes?.data);
+      if (loginRes?.data?.token) {
+        dispatch(userLoggedAction(true));
+        setLocalStorage('token', loginRes?.data?.token);
+        setLocalStorage('loggedIn', loginRes?.data?.token);
+        navigation.replace('BottomTab');
       }
       setLoading(false);
     }
@@ -120,6 +130,16 @@ const Login = ({navigation}) => {
           }}
         />
         {error?.type == 'phone' ? (
+          <Text style={styles.errorMsg}>{error?.msg}</Text>
+        ) : null}
+        <Text style={styles.desc}>ENTER YOUR PASSWORD</Text>
+        <CustomInput
+          placeholder={'* * * * * *'}
+          placeholderTextColor={theme.text.gray}
+          value={password}
+          onChangeText={setPassword}
+        />
+        {error?.type == 'password' ? (
           <Text style={styles.errorMsg}>{error?.msg}</Text>
         ) : null}
 

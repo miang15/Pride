@@ -18,7 +18,7 @@ import http from '../../api/http';
 import {setLocalStorage} from '../../utils/actions';
 import {useDispatch} from 'react-redux';
 import {setLoadingAction} from '../../redux/AppRedux/appactions';
-import {getOTPAction} from '../../redux/Auth/authactions';
+import {getOTPAction, userLoggedAction} from '../../redux/Auth/authactions';
 import {AppLoader} from '../../components/AppLoader/AppLoader';
 import PhoneInput from 'react-native-phone-number-input';
 import Header from '../../components/Header';
@@ -39,6 +39,7 @@ const About = ({navigation}) => {
   const [ifsc, setIfsc] = useState('');
   const [account, setAccount] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState({type: '', msg: ''});
   const emailRegex =
     /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -90,6 +91,16 @@ const About = ({navigation}) => {
         type: 'account',
         msg: 'Account Number is Required',
       });
+    } else if (!password) {
+      setError({
+        type: 'password',
+        msg: 'Password is Required',
+      });
+    } else if (password?.length < 6) {
+      setError({
+        type: 'password',
+        msg: 'Password must be 6 character long.',
+      });
     } else {
       setLoading(true);
       var num = phone.substring(1);
@@ -102,15 +113,15 @@ const About = ({navigation}) => {
         Branch: branch,
         ifsc_code: ifsc,
         account_Number: account,
+        password: password,
       };
-      const otpRes = await http.post('user/otp', {mobile: num});
-      console.log('otpRes', otpRes?.data);
-      if (otpRes?.data?.token) {
-        setLocalStorage('token', otpRes?.data?.token);
-        navigation.navigate('VerifyOTP', {
-          userData: data,
-          endPoint: 'user/register',
-        });
+      const registerRes = await http.post('user/register', data);
+      console.log('registerRes', registerRes?.data);
+      if (registerRes?.data?.token) {
+        dispatch(userLoggedAction(true));
+        setLocalStorage('token', registerRes?.data?.token);
+        setLocalStorage('loggedIn', registerRes?.data?.token);
+        navigation.replace('BottomTab');
       }
       setLoading(false);
     }
@@ -282,10 +293,20 @@ const About = ({navigation}) => {
         {error?.type == 'account' ? (
           <Text style={styles.errorMsg}>{error?.msg}</Text>
         ) : null}
+        <Text style={styles.desc}>ENTER PASSWORD</Text>
+        <CustomInput
+          placeholder={'* * * * * *'}
+          placeholderTextColor={theme.text.gray}
+          value={password}
+          onChangeText={setPassword}
+        />
+        {error?.type == 'password' ? (
+          <Text style={styles.errorMsg}>{error?.msg}</Text>
+        ) : null}
 
         <CustomButton
           onPress={handleRegister}
-          title={'VERIFY'}
+          title={'REGISTER'}
           customStyle={{marginTop: '5%'}}
         />
         <Text

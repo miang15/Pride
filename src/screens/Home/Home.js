@@ -9,6 +9,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Linking,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import Header from '../../components/Header';
@@ -94,7 +95,6 @@ const Home = ({navigation}) => {
     }
 
     const allBanner = await http.get('user/getbannermain');
-
     if (allBanner?.data?.success) {
       setAllStreamBanners(allBanner?.data?.banner);
     }
@@ -128,6 +128,17 @@ const Home = ({navigation}) => {
     setLoading(false);
   };
 
+  const openBanner = async val => {
+    try {
+      await Linking.openURL(val); // This will throw a LinkingException error
+    } catch (error) {
+      if (error.message.includes('No handler for URL')) {
+        Alert.alert('Error', 'Invalid URL');
+      } else {
+        Alert.alert('Error', 'Failed to open URL');
+      }
+    }
+  };
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={theme.black} barStyle={'light-content'} />
@@ -153,13 +164,16 @@ const Home = ({navigation}) => {
             activeDotColor={theme.text.red}
             pagingEnabled>
             {allStreamBanner?.map(item => (
-              <View style={styles.imgView}>
+              <TouchableOpacity
+                key={item}
+                onPress={() => openBanner(item?.link)}
+                style={styles.imgView}>
                 <Image
                   style={styles.img}
                   source={{uri: item?.url}}
                   resizeMode="cover"
                 />
-              </View>
+              </TouchableOpacity>
             ))}
           </Swiper>
         ) : null}
